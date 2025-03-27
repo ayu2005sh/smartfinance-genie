@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { PreferencesProvider } from "@/contexts/PreferencesContext";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
@@ -28,56 +29,58 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route
-            path="/dashboard"
-            element={
-              <AppLayout>
-                <Dashboard />
-              </AppLayout>
-            }
-          />
-          <Route
-            path="/expenses"
-            element={
-              <AppLayout>
-                <Expenses />
-              </AppLayout>
-            }
-          />
-          <Route
-            path="/budget"
-            element={
-              <AppLayout>
-                <Budget />
-              </AppLayout>
-            }
-          />
-          <Route
-            path="/insights"
-            element={
-              <AppLayout>
-                <Insights />
-              </AppLayout>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <AppLayout>
-                <Settings />
-              </AppLayout>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <PreferencesProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/dashboard"
+              element={
+                <AppLayout>
+                  <Dashboard />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/expenses"
+              element={
+                <AppLayout>
+                  <Expenses />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/budget"
+              element={
+                <AppLayout>
+                  <Budget />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/insights"
+              element={
+                <AppLayout>
+                  <Insights />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </PreferencesProvider>
   </QueryClientProvider>
 );
 

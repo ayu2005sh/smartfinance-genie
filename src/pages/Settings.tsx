@@ -6,14 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings as SettingsIcon, User, Bell, Shield, CreditCard, LinkIcon, Save } from 'lucide-react';
+import { Settings as SettingsIcon, User, Bell, Shield, CreditCard, LinkIcon, Save, Moon, Sun } from 'lucide-react';
 import AccountIntegration from '@/components/AccountIntegration';
 import { Label } from '@/components/ui/label';
+import ThemeToggle from '@/components/ThemeToggle';
+import CurrencySelector from '@/components/CurrencySelector';
+import { usePreferences } from '@/contexts/PreferencesContext';
 
 const Settings = () => {
   useEffect(() => {
-    document.title = 'Settings | FinWise';
+    document.title = 'Settings | AIconomy';
   }, []);
+  
+  const { currency } = usePreferences();
   
   return (
     <div className="animate-fade-in">
@@ -61,18 +66,7 @@ const Settings = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="currency">Currency</Label>
-                <Select defaultValue="usd">
-                  <SelectTrigger id="currency">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="usd">USD ($)</SelectItem>
-                    <SelectItem value="eur">EUR (€)</SelectItem>
-                    <SelectItem value="gbp">GBP (£)</SelectItem>
-                    <SelectItem value="jpy">JPY (¥)</SelectItem>
-                    <SelectItem value="cad">CAD ($)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CurrencySelector />
               </div>
             </div>
             
@@ -180,7 +174,15 @@ const Settings = () => {
                   <h3 className="font-medium">Dark Mode</h3>
                   <p className="text-sm text-muted-foreground">Use dark theme for the application</p>
                 </div>
-                <Switch />
+                <ThemeToggle />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">Currency</h3>
+                  <p className="text-sm text-muted-foreground">Set your preferred currency</p>
+                </div>
+                <CurrencySelector className="w-40" />
               </div>
               
               <div className="flex items-center justify-between">

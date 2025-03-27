@@ -19,6 +19,8 @@ import {
   Package
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePreferences } from '@/contexts/PreferencesContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 interface Transaction {
   id: string;
@@ -27,6 +29,7 @@ interface Transaction {
   category: string;
   date: string;
   type: 'income' | 'expense';
+  currency?: string;
 }
 
 interface TransactionListProps {
@@ -62,6 +65,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const { currency, convertCurrency } = usePreferences();
   
   // Sample transaction data
   const transactions: Transaction[] = [
@@ -71,7 +75,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 85.25,
       category: 'Food & Dining',
       date: '2023-09-15T14:30:00Z',
-      type: 'expense'
+      type: 'expense',
+      currency: 'usd'
     },
     {
       id: '2',
@@ -79,7 +84,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 3200.00,
       category: 'Income',
       date: '2023-09-14T09:15:00Z',
-      type: 'income'
+      type: 'income',
+      currency: 'usd'
     },
     {
       id: '3',
@@ -87,7 +93,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 45.80,
       category: 'Transportation',
       date: '2023-09-13T18:20:00Z',
-      type: 'expense'
+      type: 'expense',
+      currency: 'usd'
     },
     {
       id: '4',
@@ -95,7 +102,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 5.25,
       category: 'Coffee',
       date: '2023-09-12T10:30:00Z',
-      type: 'expense'
+      type: 'expense',
+      currency: 'usd'
     },
     {
       id: '5',
@@ -103,7 +111,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 120.99,
       category: 'Shopping',
       date: '2023-09-11T16:45:00Z',
-      type: 'expense'
+      type: 'expense',
+      currency: 'usd'
     },
     {
       id: '6',
@@ -111,7 +120,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 1200.00,
       category: 'Housing',
       date: '2023-09-10T11:00:00Z',
-      type: 'expense'
+      type: 'expense',
+      currency: 'usd'
     },
     {
       id: '7',
@@ -119,7 +129,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       amount: 95.50,
       category: 'Utilities',
       date: '2023-09-09T14:20:00Z',
-      type: 'expense'
+      type: 'expense',
+      currency: 'usd'
     }
   ];
   
@@ -143,6 +154,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const getFormattedAmount = (transaction: Transaction) => {
+    // Convert the amount to the user's preferred currency
+    const convertedAmount = convertCurrency(
+      transaction.amount,
+      (transaction.currency || 'usd') as any,
+      currency
+    );
+    
+    return formatCurrency(convertedAmount, currency);
   };
   
   return (
@@ -199,7 +221,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 'font-semibold',
                 transaction.type === 'income' ? 'text-green-600' : ''
               )}>
-                {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                {transaction.type === 'income' ? '+' : '-'}{getFormattedAmount(transaction)}
               </span>
             </div>
           ))

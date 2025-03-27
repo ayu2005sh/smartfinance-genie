@@ -9,7 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      currency_rates: {
+        Row: {
+          base_currency: string
+          id: number
+          last_updated: string
+          rate: number
+          target_currency: string
+        }
+        Insert: {
+          base_currency: string
+          id?: number
+          last_updated?: string
+          rate: number
+          target_currency: string
+        }
+        Update: {
+          base_currency?: string
+          id?: number
+          last_updated?: string
+          rate?: number
+          target_currency?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          transaction_date: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          transaction_date?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          transaction_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          currency_preference: string | null
+          id: string
+          theme_preference: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency_preference?: string | null
+          id: string
+          theme_preference?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency_preference?: string | null
+          id?: string
+          theme_preference?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
