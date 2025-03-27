@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Card from '@/components/ui-custom/Card';
 import { Button } from '@/components/ui/button';
-import { Link, BankIcon, PlusCircle, CreditCard, CheckCircle2 } from 'lucide-react';
+import { Link, Building, PlusCircle, CreditCard, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,7 +25,7 @@ const AccountIntegration: React.FC<AccountIntegrationProps> = ({ className }) =>
     {
       id: '1',
       name: 'Bank Account',
-      icon: <BankIcon size={24} />,
+      icon: <Building size={24} />,
       isConnected: true
     },
     {

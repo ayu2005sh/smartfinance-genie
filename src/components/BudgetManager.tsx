@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Card from '@/components/ui-custom/Card';
 import { Progress } from '@/components/ui/progress';
@@ -96,9 +95,9 @@ const BudgetManager: React.FC<BudgetManagerProps> = ({ className }) => {
               value={calculatePercentage(category.spent, category.allocated)} 
               className={cn(
                 'h-2',
-                category.spent > category.allocated ? 'bg-muted text-red-500' : 'bg-muted'
+                category.spent > category.allocated ? 'bg-muted text-red-500' : 'bg-muted',
+                category.color
               )}
-              indicatorClassName={category.color}
             />
             <div className="flex justify-between mt-1">
               <span className="text-xs text-muted-foreground">
