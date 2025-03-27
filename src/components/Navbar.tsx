@@ -1,146 +1,174 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { 
-  LayoutDashboard, 
-  Receipt, 
-  PieChart, 
   BarChart3, 
-  Settings, 
+  Home, 
   Menu, 
+  Moon, 
+  Receipt, 
+  Settings, 
+  Sun, 
+  Wallet, 
   X,
-  Brain,
-  Moon,
-  Sun
+  LogOut,
+  LogIn 
 } from 'lucide-react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
+import { useMobile } from '@/hooks/use-mobile';
+import ThemeToggle from './ThemeToggle';
+import CurrencySelector from './CurrencySelector';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface NavItem {
-  path: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+const Navbar = () => {
   const location = useLocation();
-  const { theme, toggleTheme } = usePreferences();
+  const isMobile = useMobile();
+  const { user, signOut } = useAuth();
   
-  const navItems: NavItem[] = [
-    { path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { path: '/expenses', label: 'Expenses', icon: <Receipt size={20} /> },
-    { path: '/budget', label: 'Budget', icon: <PieChart size={20} /> },
-    { path: '/insights', label: 'Insights', icon: <BarChart3 size={20} /> },
-    { path: '/settings', label: 'Settings', icon: <Settings size={20} /> },
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+  
+  const navLinks = [
+    { 
+      name: 'Dashboard', 
+      path: '/dashboard', 
+      icon: <Home className="h-4 w-4 mr-2" /> 
+    },
+    { 
+      name: 'Expenses', 
+      path: '/expenses', 
+      icon: <Receipt className="h-4 w-4 mr-2" /> 
+    },
+    { 
+      name: 'Budget', 
+      path: '/budget', 
+      icon: <Wallet className="h-4 w-4 mr-2" /> 
+    },
+    { 
+      name: 'Insights', 
+      path: '/insights', 
+      icon: <BarChart3 className="h-4 w-4 mr-2" /> 
+    },
+    { 
+      name: 'Settings', 
+      path: '/settings', 
+      icon: <Settings className="h-4 w-4 mr-2" /> 
+    }
   ];
   
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const renderNavLinks = () => {
+    return navLinks.map((link) => (
+      <Link key={link.path} to={link.path}>
+        <Button
+          variant={isActive(link.path) ? 'default' : 'ghost'}
+          className={cn(
+            'flex items-center justify-start',
+            isActive(link.path) ? 'bg-primary text-primary-foreground' : ''
+          )}
+          size={isMobile ? 'lg' : 'default'}
+        >
+          {link.icon}
+          {link.name}
+        </Button>
+      </Link>
+    ));
+  };
   
-  useEffect(() => {
-    // Close mobile menu when route changes
-    setIsOpen(false);
-  }, [location.pathname]);
+  const handleSignOut = async () => {
+    await signOut();
+  };
+  
+  const renderMobileNav = () => {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="md:hidden">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">AIconomy</h2>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <X className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+          </div>
+          
+          <div className="space-y-2 mb-6">
+            {renderNavLinks()}
+          </div>
+          
+          <div className="mt-auto space-y-4">
+            <ThemeToggle className="w-full" />
+            <CurrencySelector className="w-full" />
+            
+            {user ? (
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth" className="w-full">
+                <Button variant="outline" className="w-full">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  };
   
   return (
-    <header 
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6',
-        scrolled ? 'bg-background/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
-      )}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/dashboard" className="flex items-center space-x-2">
-          <div className="bg-primary text-primary-foreground p-1 rounded-md">
-            <Brain size={24} />
-          </div>
-          <span className="text-primary font-semibold text-2xl">AIconomy</span>
-        </Link>
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                'px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300',
-                location.pathname === item.path
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-secondary'
-              )}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          ))}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            className="ml-2"
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </Button>
-        </nav>
-        
-        {/* Mobile menu button */}
-        <div className="md:hidden flex items-center space-x-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </Button>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
+      <div className="flex items-center justify-between h-16 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="flex items-center">
+          {renderMobileNav()}
+          
+          <Link to="/" className="flex items-center">
+            <span className="text-xl font-bold hidden md:block">AIconomy</span>
+            <span className="text-xl font-bold md:hidden">A</span>
+          </Link>
+          
+          <nav className="hidden md:flex items-center ml-8 space-x-1">
+            {renderNavLinks()}
+          </nav>
         </div>
         
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="absolute top-full left-0 right-0 bg-background border-b border-border p-4 md:hidden animate-fade-in">
-            <nav className="flex flex-col space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    'px-4 py-3 rounded-lg flex items-center space-x-2',
-                    location.pathname === item.path
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-secondary'
-                  )}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
+        <div className="flex items-center space-x-4">
+          <CurrencySelector className="hidden md:flex" />
+          <ThemeToggle className="hidden md:flex" />
+          
+          {user ? (
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="hidden md:flex"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Link to="/auth" className="hidden md:block">
+              <Button variant="outline" size="sm">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign In
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

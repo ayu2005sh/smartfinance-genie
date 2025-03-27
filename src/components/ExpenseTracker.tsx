@@ -8,18 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Check, Plus, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useTransactions } from '@/hooks/useTransactions';
+import { usePreferences } from '@/contexts/PreferencesContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ExpenseTrackerProps {
   className?: string;
-  onExpenseAdded?: (expense: Expense) => void;
-}
-
-export interface Expense {
-  id: string;
-  amount: number;
-  category: string;
-  description: string;
-  date: string;
+  onExpenseAdded?: (expense: any) => void;
 }
 
 const categories = [
@@ -37,36 +32,36 @@ const categories = [
 
 const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ className, onExpenseAdded }) => {
   const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const { toast } = useToast();
+  const { addTransaction, isLoading: isAddingTransaction } = useTransactions();
+  const { currency } = usePreferences();
+  const { user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!amount || !category) return;
-    
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const newExpense: Expense = {
-        id: Date.now().toString(),
-        amount: parseFloat(amount),
-        category,
-        description,
-        date: new Date().toISOString(),
-      };
-      
-      if (onExpenseAdded) {
-        onExpenseAdded(newExpense);
-      }
-      
+    if (!user) {
       toast({
-        title: "Expense Added",
-        description: `$${amount} has been added to your expenses.`,
+        title: "Authentication Required",
+        description: "Please log in to track expenses",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      const parsedAmount = parseFloat(amount);
+      
+      await addTransaction.mutateAsync({
+        amount: parsedAmount,
+        category,
+        description: description || null,
+        transaction_date: new Date().toISOString(),
+        currency,
       });
       
       // Reset form
@@ -74,8 +69,19 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ className, onExpenseAdd
       setCategory('');
       setDescription('');
       setShowForm(false);
-      setIsSubmitting(false);
-    }, 600);
+      
+      // Call the callback if provided
+      if (onExpenseAdded) {
+        onExpenseAdded({
+          amount: parsedAmount,
+          category,
+          description,
+          date: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error adding expense:', error);
+    }
   };
 
   return (
@@ -144,8 +150,8 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ className, onExpenseAdd
             />
           </div>
           <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
+            <Button type="submit" disabled={isAddingTransaction}>
+              {isAddingTransaction ? (
                 <span className="flex items-center">
                   <span className="animate-pulse mr-2">Processing</span>
                 </span>
@@ -159,8 +165,17 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ className, onExpenseAdd
         </form>
       ) : (
         <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
-          <p>Track your expenses to get personalized insights</p>
-          <p className="mt-2 text-sm">Add a new expense using the button above</p>
+          {!user ? (
+            <>
+              <p>Please log in to track your expenses</p>
+              <p className="mt-2 text-sm">Sign in to get personalized insights</p>
+            </>
+          ) : (
+            <>
+              <p>Track your expenses to get personalized insights</p>
+              <p className="mt-2 text-sm">Add a new expense using the button above</p>
+            </>
+          )}
         </div>
       )}
     </Card>

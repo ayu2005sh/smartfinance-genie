@@ -21,16 +21,8 @@ import {
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { formatCurrency } from '@/utils/formatCurrency';
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  date: string;
-  type: 'income' | 'expense';
-  currency?: string;
-}
+import { useTransactions } from '@/hooks/useTransactions';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TransactionListProps {
   className?: string;
@@ -66,86 +58,23 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { currency, convertCurrency } = usePreferences();
-  
-  // Sample transaction data
-  const transactions: Transaction[] = [
-    {
-      id: '1',
-      description: 'Grocery Shopping',
-      amount: 85.25,
-      category: 'Food & Dining',
-      date: '2023-09-15T14:30:00Z',
-      type: 'expense',
-      currency: 'usd'
-    },
-    {
-      id: '2',
-      description: 'Salary Deposit',
-      amount: 3200.00,
-      category: 'Income',
-      date: '2023-09-14T09:15:00Z',
-      type: 'income',
-      currency: 'usd'
-    },
-    {
-      id: '3',
-      description: 'Gas Station',
-      amount: 45.80,
-      category: 'Transportation',
-      date: '2023-09-13T18:20:00Z',
-      type: 'expense',
-      currency: 'usd'
-    },
-    {
-      id: '4',
-      description: 'Coffee Shop',
-      amount: 5.25,
-      category: 'Coffee',
-      date: '2023-09-12T10:30:00Z',
-      type: 'expense',
-      currency: 'usd'
-    },
-    {
-      id: '5',
-      description: 'Online Shopping',
-      amount: 120.99,
-      category: 'Shopping',
-      date: '2023-09-11T16:45:00Z',
-      type: 'expense',
-      currency: 'usd'
-    },
-    {
-      id: '6',
-      description: 'Rent Payment',
-      amount: 1200.00,
-      category: 'Housing',
-      date: '2023-09-10T11:00:00Z',
-      type: 'expense',
-      currency: 'usd'
-    },
-    {
-      id: '7',
-      description: 'Utility Bill',
-      amount: 95.50,
-      category: 'Utilities',
-      date: '2023-09-09T14:20:00Z',
-      type: 'expense',
-      currency: 'usd'
-    }
-  ];
+  const { transactions, isLoading } = useTransactions();
+  const { user } = useAuth();
   
   // Filter and sort transactions
   const filteredTransactions = transactions
-    .filter(transaction => 
-      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-    })
-    .slice(0, limit);
+    ? transactions
+        .filter(transaction => 
+          transaction.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => {
+          const dateA = new Date(a.transaction_date).getTime();
+          const dateB = new Date(b.transaction_date).getTime();
+          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        })
+        .slice(0, limit)
+    : [];
   
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -156,7 +85,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const getFormattedAmount = (transaction: Transaction) => {
+  const getFormattedAmount = (transaction: any) => {
     // Convert the amount to the user's preferred currency
     const convertedAmount = convertCurrency(
       transaction.amount,
@@ -166,6 +95,20 @@ const TransactionList: React.FC<TransactionListProps> = ({
     
     return formatCurrency(convertedAmount, currency);
   };
+  
+  // If not logged in, show message
+  if (!user) {
+    return (
+      <Card variant="glass" className={cn('', className)}>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-semibold">{title}</h2>
+        </div>
+        <div className="py-8 text-center text-muted-foreground">
+          <p>Please log in to view your transactions</p>
+        </div>
+      </Card>
+    );
+  }
   
   return (
     <Card variant="glass" className={cn('', className)}>
@@ -196,7 +139,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
       </div>
       
       <div className="space-y-1">
-        {filteredTransactions.length > 0 ? (
+        {isLoading ? (
+          <div className="py-8 text-center text-muted-foreground animate-pulse">
+            <p>Loading transactions...</p>
+          </div>
+        ) : filteredTransactions.length > 0 ? (
           filteredTransactions.map((transaction) => (
             <div 
               key={transaction.id}
@@ -205,23 +152,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
               <div className="flex items-center">
                 <div className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center mr-3',
-                  transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-primary/10 text-primary'
+                  'bg-primary/10 text-primary'
                 )}>
-                  {transaction.type === 'income' ? 
-                    <ArrowDownUp className="h-4 w-4" /> : 
-                    getCategoryIcon(transaction.category)
-                  }
+                  {getCategoryIcon(transaction.category)}
                 </div>
                 <div>
-                  <p className="font-medium">{transaction.description}</p>
-                  <p className="text-xs text-muted-foreground">{transaction.category} • {formatDate(transaction.date)}</p>
+                  <p className="font-medium">{transaction.description || transaction.category}</p>
+                  <p className="text-xs text-muted-foreground">{transaction.category} • {formatDate(transaction.transaction_date)}</p>
                 </div>
               </div>
-              <span className={cn(
-                'font-semibold',
-                transaction.type === 'income' ? 'text-green-600' : ''
-              )}>
-                {transaction.type === 'income' ? '+' : '-'}{getFormattedAmount(transaction)}
+              <span className="font-semibold">
+                -{getFormattedAmount(transaction)}
               </span>
             </div>
           ))
@@ -232,7 +173,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         )}
       </div>
       
-      {transactions.length > limit && (
+      {transactions && transactions.length > limit && (
         <div className="mt-4 flex justify-center">
           <Button variant="outline" size="sm">View All Transactions</Button>
         </div>

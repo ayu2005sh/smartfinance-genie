@@ -1,155 +1,147 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { ThemeMode, CurrencyType, CurrencyRate } from '@/types/preferences';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
-type ThemeMode = 'light' | 'dark';
-type CurrencyType = 'usd' | 'eur' | 'gbp' | 'jpy' | 'cad' | 'inr';
-
-interface CurrencyRate {
-  base_currency: string;
-  target_currency: string;
-  rate: number;
-}
-
-interface PreferencesContextType {
+interface PreferencesContextProps {
   theme: ThemeMode;
   toggleTheme: () => void;
   currency: CurrencyType;
   setCurrency: (currency: CurrencyType) => void;
+  currencyRates: CurrencyRate[];
   convertCurrency: (amount: number, from: CurrencyType, to: CurrencyType) => number;
   isLoading: boolean;
-  currencyRates: CurrencyRate[];
 }
 
-const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
+const PreferencesContext = createContext<PreferencesContextProps | undefined>(undefined);
 
 export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<ThemeMode>('light');
-  const [currency, setCurrency] = useState<CurrencyType>('usd');
+  const [currency, setCurrencyState] = useState<CurrencyType>('usd');
   const [currencyRates, setCurrencyRates] = useState<CurrencyRate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Check if user is logged in
+  // Fetch currency rates from Supabase
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUserId(session?.user?.id || null);
-    });
-
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUserId(session?.user?.id || null);
-    };
-    
-    getInitialSession();
-    
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
-  // Load user preferences
-  useEffect(() => {
-    if (!userId) {
-      // If no user is logged in, try to load from localStorage
-      const savedTheme = localStorage.getItem('theme') as ThemeMode;
-      const savedCurrency = localStorage.getItem('currency') as CurrencyType;
-      
-      if (savedTheme) setTheme(savedTheme);
-      if (savedCurrency) setCurrency(savedCurrency);
-      
-      setIsLoading(false);
-      return;
+    async function fetchCurrencyRates() {
+      try {
+        const { data, error } = await supabase
+          .from('currency_rates')
+          .select('*');
+          
+        if (error) throw error;
+        
+        const rates: CurrencyRate[] = data.map(rate => ({
+          base_currency: rate.base_currency,
+          target_currency: rate.target_currency,
+          rate: rate.rate
+        }));
+        
+        setCurrencyRates(rates);
+      } catch (error: any) {
+        console.error('Error fetching currency rates:', error.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
-
-    const fetchUserPreferences = async () => {
+    
+    fetchCurrencyRates();
+  }, []);
+  
+  // Fetch user preferences when user is loaded
+  useEffect(() => {
+    if (!user) return;
+    
+    async function fetchUserPreferences() {
       try {
         const { data, error } = await supabase
           .from('user_profiles')
           .select('theme_preference, currency_preference')
-          .eq('id', userId)
+          .eq('id', user.id)
           .single();
-
+          
         if (error) throw error;
         
         if (data) {
-          if (data.theme_preference) setTheme(data.theme_preference as ThemeMode);
-          if (data.currency_preference) setCurrency(data.currency_preference as CurrencyType);
+          setTheme(data.theme_preference as ThemeMode || 'light');
+          setCurrencyState(data.currency_preference as CurrencyType || 'usd');
         }
-      } catch (error) {
-        console.error('Error loading user preferences:', error);
-      } finally {
-        setIsLoading(false);
+      } catch (error: any) {
+        console.error('Error fetching user preferences:', error.message);
       }
-    };
-
+    }
+    
     fetchUserPreferences();
-  }, [userId]);
-
-  // Apply theme to document
+  }, [user]);
+  
+  // Update document theme when theme changes
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
-    localStorage.setItem('theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+  
+  // Toggle theme
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
     
-    // Save preference to database if logged in
-    if (userId) {
-      supabase
-        .from('user_profiles')
-        .update({ theme_preference: theme, updated_at: new Date().toISOString() })
-        .eq('id', userId)
-        .then(({ error }) => {
-          if (error) console.error('Error saving theme preference:', error);
-        });
-    }
-  }, [theme, userId]);
-
-  // Save currency preference
-  useEffect(() => {
-    localStorage.setItem('currency', currency);
-    
-    // Save preference to database if logged in
-    if (userId) {
-      supabase
-        .from('user_profiles')
-        .update({ currency_preference: currency, updated_at: new Date().toISOString() })
-        .eq('id', userId)
-        .then(({ error }) => {
-          if (error) console.error('Error saving currency preference:', error);
-        });
-    }
-  }, [currency, userId]);
-
-  // Fetch currency rates
-  useEffect(() => {
-    const fetchCurrencyRates = async () => {
+    // Save to backend if user is logged in
+    if (user) {
       try {
-        const { data, error } = await supabase
-          .from('currency_rates')
-          .select('base_currency, target_currency, rate');
-
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({ theme_preference: newTheme, updated_at: new Date().toISOString() })
+          .eq('id', user.id);
+          
+        if (error) throw error;
+      } catch (error: any) {
+        console.error('Error updating theme preference:', error.message);
+        toast({
+          title: "Error",
+          description: "Failed to save theme preference",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+  
+  // Set currency
+  const setCurrency = async (newCurrency: CurrencyType) => {
+    setCurrencyState(newCurrency);
+    
+    // Save to backend if user is logged in
+    if (user) {
+      try {
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({ currency_preference: newCurrency, updated_at: new Date().toISOString() })
+          .eq('id', user.id);
+          
         if (error) throw error;
         
-        if (data) {
-          setCurrencyRates(data);
-        }
-      } catch (error) {
-        console.error('Error loading currency rates:', error);
+        toast({
+          title: "Currency Updated",
+          description: `Currency changed to ${newCurrency.toUpperCase()}`,
+        });
+      } catch (error: any) {
+        console.error('Error updating currency preference:', error.message);
+        toast({
+          title: "Error",
+          description: "Failed to save currency preference",
+          variant: "destructive",
+        });
       }
-    };
-
-    fetchCurrencyRates();
-  }, []);
-
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    }
   };
-
+  
+  // Currency conversion helper
   const convertCurrency = (amount: number, from: CurrencyType, to: CurrencyType): number => {
     if (from === to) return amount;
     
-    // Direct conversion
+    // Direct conversion rate (e.g., USD to EUR)
     const directRate = currencyRates.find(
       rate => rate.base_currency === from && rate.target_currency === to
     );
@@ -158,7 +150,16 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return amount * directRate.rate;
     }
     
-    // Conversion through USD
+    // Reverse rate (e.g., EUR to USD)
+    const reverseRate = currencyRates.find(
+      rate => rate.base_currency === to && rate.target_currency === from
+    );
+    
+    if (reverseRate) {
+      return amount / reverseRate.rate;
+    }
+    
+    // Using USD as intermediate (e.g., GBP to EUR = GBP to USD, then USD to EUR)
     const fromToUsd = currencyRates.find(
       rate => rate.base_currency === 'usd' && rate.target_currency === from
     );
@@ -168,25 +169,28 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     );
     
     if (fromToUsd && usdToTarget) {
-      // First convert to USD, then to target currency
-      return amount * (1 / fromToUsd.rate) * usdToTarget.rate;
+      // Convert to USD first, then to target
+      const amountInUsd = amount / fromToUsd.rate;
+      return amountInUsd * usdToTarget.rate;
     }
     
-    // If no conversion path found, return original amount
-    console.warn(`No conversion path found from ${from} to ${to}`);
+    // Fallback - no conversion possible
+    console.warn(`No conversion rate found for ${from} to ${to}`);
     return amount;
   };
-
+  
   return (
-    <PreferencesContext.Provider value={{
-      theme,
-      toggleTheme,
-      currency,
-      setCurrency,
-      convertCurrency,
-      isLoading,
-      currencyRates
-    }}>
+    <PreferencesContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        currency,
+        setCurrency,
+        currencyRates,
+        convertCurrency,
+        isLoading
+      }}
+    >
       {children}
     </PreferencesContext.Provider>
   );
