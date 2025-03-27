@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,14 +16,14 @@ import {
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import ThemeToggle from './ThemeToggle';
 import CurrencySelector from './CurrencySelector';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
   
   const isActive = (path: string) => {
