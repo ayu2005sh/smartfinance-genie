@@ -1,8 +1,8 @@
-# Welcome to your Lovable project
+# Welcome to your HackVerse2025 project
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/ef50caec-4b4d-43d6-b38c-850cf6dff8b2
+
 
 ## How can I edit this code?
 
