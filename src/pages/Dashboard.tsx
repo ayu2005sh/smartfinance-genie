@@ -10,13 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Dashboard = () => {
   useEffect(() => {
-    document.title = 'Dashboard | FinWise';
+    document.title = 'Dashboard | AIconomy';
   }, []);
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-semibold mb-1">Welcome Back</h1>
-      <p className="text-muted-foreground mb-8">Here's an overview of your finances</p>
+      <h1 className="text-3xl font-semibold mb-1">Welcome to AIconomy</h1>
+      <p className="text-muted-foreground mb-8">Your AI-powered financial assistant</p>
       
       <DashboardOverview className="mb-8" />
       

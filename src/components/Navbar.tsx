@@ -10,7 +10,8 @@ import {
   BarChart3, 
   Settings, 
   Menu, 
-  X 
+  X,
+  Brain
 } from 'lucide-react';
 
 interface NavItem {
@@ -61,7 +62,10 @@ const Navbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/dashboard" className="flex items-center space-x-2">
-          <span className="text-primary font-semibold text-2xl">Finwise</span>
+          <div className="bg-primary text-primary-foreground p-1 rounded-md">
+            <Brain size={24} />
+          </div>
+          <span className="text-primary font-semibold text-2xl">AIconomy</span>
         </Link>
         
         {/* Desktop Navigation */}

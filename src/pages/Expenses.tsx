@@ -14,7 +14,7 @@ const Expenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   
   useEffect(() => {
-    document.title = 'Expenses | FinWise';
+    document.title = 'Expenses | AIconomy';
   }, []);
   
   const handleExpenseAdded = (expense: Expense) => {
