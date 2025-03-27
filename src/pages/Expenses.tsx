@@ -1,13 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui-custom/Card';
-import ExpenseTracker, { Expense } from '@/components/ExpenseTracker';
+import ExpenseTracker from '@/components/ExpenseTracker';
 import TransactionList from '@/components/TransactionList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, Download } from 'lucide-react';
+
+// Define Expense interface locally instead of importing it
+interface Expense {
+  amount: number;
+  category: string;
+  description?: string;
+  date: string;
+}
 
 const Expenses = () => {
   const [activeTab, setActiveTab] = useState('all');
