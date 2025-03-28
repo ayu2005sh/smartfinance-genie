@@ -7,11 +7,25 @@ import FinancialInsights from '@/components/FinancialInsights';
 import ExpenseTracker from '@/components/ExpenseTracker';
 import AccountIntegration from '@/components/AccountIntegration';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   useEffect(() => {
     document.title = 'Dashboard | AIconomy';
   }, []);
+
+  const handleExpenseAdded = (expense: any) => {
+    toast({
+      title: "Expense Added",
+      description: `$${expense.amount} added for ${expense.category}`,
+    });
+  };
 
   return (
     <div className="animate-fade-in">
@@ -21,7 +35,10 @@ const Dashboard = () => {
       <DashboardOverview className="mb-8" />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <TransactionList />
+        <TransactionList 
+          limit={5}
+          showSearch={true}
+        />
         <BudgetManager />
       </div>
       
@@ -37,7 +54,7 @@ const Dashboard = () => {
             <TabsTrigger value="insights">Weekly Analytics</TabsTrigger>
           </TabsList>
           <TabsContent value="expenses" className="animate-fade-in">
-            <ExpenseTracker />
+            <ExpenseTracker onExpenseAdded={handleExpenseAdded} />
           </TabsContent>
           <TabsContent value="insights" className="animate-fade-in">
             <div className="text-center py-12 text-muted-foreground">
