@@ -17,9 +17,9 @@ interface CurrencyExchangeProps {
 
 const CurrencyExchange: React.FC<CurrencyExchangeProps> = ({ className }) => {
   const { currencyRates, convertCurrency, isLoading } = usePreferences();
-  const [amount, setAmount] = useState<number>(100);
-  const [sourceCurrency, setSourceCurrency] = useState<CurrencyType>('usd');
-  const [targetCurrency, setTargetCurrency] = useState<CurrencyType>('eur');
+  const [amount, setAmount] = useState<number>(10000);
+  const [sourceCurrency, setSourceCurrency] = useState<CurrencyType>('inr');
+  const [targetCurrency, setTargetCurrency] = useState<CurrencyType>('usd');
   const [result, setResult] = useState<number>(0);
   const [rate, setRate] = useState<number>(0);
 
@@ -91,7 +91,7 @@ const CurrencyExchange: React.FC<CurrencyExchangeProps> = ({ className }) => {
               onChange={handleAmountChange}
               className="pl-8"
               min={0}
-              step="0.01"
+              step="1"
             />
             <div className="absolute left-3 top-2.5 text-muted-foreground">
               {currencySymbols[sourceCurrency]}

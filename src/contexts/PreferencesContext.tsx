@@ -19,7 +19,7 @@ const PreferencesContext = createContext<PreferencesContextProps | undefined>(un
 
 export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<ThemeMode>('light');
-  const [currency, setCurrencyState] = useState<CurrencyType>('usd');
+  const [currency, setCurrencyState] = useState<CurrencyType>('inr');
   const [currencyRates, setCurrencyRates] = useState<CurrencyRate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
@@ -68,7 +68,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         
         if (data) {
           setTheme(data.theme_preference as ThemeMode || 'light');
-          setCurrencyState(data.currency_preference as CurrencyType || 'usd');
+          setCurrencyState(data.currency_preference as CurrencyType || 'inr');
         }
       } catch (error: any) {
         console.error('Error fetching user preferences:', error.message);

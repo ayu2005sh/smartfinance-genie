@@ -7,6 +7,7 @@ import FinancialInsights from '@/components/FinancialInsights';
 import ExpenseTracker from '@/components/ExpenseTracker';
 import AccountIntegration from '@/components/AccountIntegration';
 import CurrencyExchange from '@/components/CurrencyExchange';
+import TaxOptimization from '@/components/TaxOptimization';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +25,7 @@ const Dashboard = () => {
   const handleExpenseAdded = (expense: any) => {
     toast({
       title: "Expense Added",
-      description: `$${expense.amount} added for ${expense.category}`,
+      description: `₹${expense.amount} added for ${expense.category}`,
     });
   };
 
@@ -45,7 +46,7 @@ const Dashboard = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <FinancialInsights />
-        <CurrencyExchange />
+        <TaxOptimization />
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -66,6 +67,10 @@ const Dashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
+      </div>
+      
+      <div className="mb-8">
+        <CurrencyExchange />
       </div>
     </div>
   );

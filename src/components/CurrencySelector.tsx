@@ -11,12 +11,12 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ className }) => {
   const { currency, setCurrency } = usePreferences();
   
   const currencies = [
+    { value: 'inr', label: 'INR (₹)', symbol: '₹' },
     { value: 'usd', label: 'USD ($)', symbol: '$' },
     { value: 'eur', label: 'EUR (€)', symbol: '€' },
     { value: 'gbp', label: 'GBP (£)', symbol: '£' },
     { value: 'jpy', label: 'JPY (¥)', symbol: '¥' },
-    { value: 'cad', label: 'CAD ($)', symbol: 'C$' },
-    { value: 'inr', label: 'INR (₹)', symbol: '₹' }
+    { value: 'cad', label: 'CAD ($)', symbol: 'C$' }
   ];
   
   return (
