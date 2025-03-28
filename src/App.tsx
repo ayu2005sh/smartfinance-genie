@@ -12,6 +12,7 @@ import Expenses from "./pages/Expenses";
 import Budget from "./pages/Budget";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
+import BankAccounts from "./pages/BankAccounts";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -75,6 +76,16 @@ const App = () => (
                   <ProtectedRoute>
                     <AppLayout>
                       <Insights />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/bank-accounts"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <BankAccounts />
                     </AppLayout>
                   </ProtectedRoute>
                 }
