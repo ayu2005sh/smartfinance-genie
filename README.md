@@ -1,69 +1,87 @@
-# Welcome to your HackVerse2025 project
 
-## Project info
+# AIconomy - AI-Powered Personal Finance Platform
 
+## Overview
 
+AIconomy is a modern, AI-powered personal finance platform designed to help users manage their finances more effectively. The application provides a comprehensive suite of tools for expense tracking, budget management, financial insights, and bank account integration.
 
-## How can I edit this code?
+## Key Features
 
-There are several ways of editing your application.
+- **Intelligent Dashboard**: Consolidated view of your financial health with real-time metrics
+- **Multi-Account Management**: Connect and manage multiple bank accounts in one place
+- **Expense Tracking**: Easily log and categorize expenses with automatic categorization
+- **Budget Planning**: Set up and monitor budgets across different spending categories
+- **Financial Insights**: AI-powered analysis of spending patterns and trends
+- **Responsive Design**: Fully optimized experience across desktop and mobile devices
 
-**Use Lovable**
+## Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ef50caec-4b4d-43d6-b38c-850cf6dff8b2) and start prompting.
+### Frontend
+- **React 18**: Component-based UI library for building interactive interfaces
+- **TypeScript**: Static typing for improved code quality and developer experience
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
+- **shadcn/ui**: High-quality UI components built with Radix UI and Tailwind
+- **React Query**: Data fetching, caching, and state management
+- **React Router**: Declarative routing for single page applications
+- **Recharts**: Composable charting library for data visualization
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend & Infrastructure
+- **Supabase**: Provides authentication, PostgreSQL database, and serverless functions
+- **Row Level Security**: Database-level security ensuring user data isolation
+- **Real-time Subscriptions**: Live updates for collaborative features
 
-**Use your preferred IDE**
+## Security Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Bank-level encryption for sensitive financial data
+- JWT-based authentication system
+- Row-level security policies for granular data access control
+- Masked account details with only last 4 digits visible in UI
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+### Prerequisites
+- Node.js (v16+)
+- npm or yarn
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/aiconomy.git
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Navigate to project directory
+cd aiconomy
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at [http://localhost:8080](http://localhost:8080)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/         # Reusable UI components
+├── contexts/           # React context providers
+├── hooks/              # Custom React hooks
+├── integrations/       # External service integrations
+├── pages/              # Application pages/routes
+├── utils/              # Utility functions
+└── App.tsx             # Main application component
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Roadmap
 
-## What technologies are used for this project?
+- Investment portfolio tracking
+- Automated bill payment reminders
+- AI-powered financial goal recommendations
+- Mobile application with biometric authentication
+- Expanded financial institution integrations
 
-This project is built with .
+## License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/ef50caec-4b4d-43d6-b38c-850cf6dff8b2) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is licensed under the MIT License - see the LICENSE file for details.
