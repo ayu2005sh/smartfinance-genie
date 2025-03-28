@@ -6,6 +6,7 @@ import BudgetManager from '@/components/BudgetManager';
 import FinancialInsights from '@/components/FinancialInsights';
 import ExpenseTracker from '@/components/ExpenseTracker';
 import AccountIntegration from '@/components/AccountIntegration';
+import CurrencyExchange from '@/components/CurrencyExchange';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -44,10 +45,12 @@ const Dashboard = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <FinancialInsights />
-        <AccountIntegration />
+        <CurrencyExchange />
       </div>
       
-      <div className="mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <AccountIntegration />
+        
         <Tabs defaultValue="expenses" className="w-full">
           <TabsList className="w-full max-w-md mx-auto grid grid-cols-2 mb-6">
             <TabsTrigger value="expenses">Track Expenses</TabsTrigger>
