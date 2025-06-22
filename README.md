@@ -4,6 +4,14 @@
 ## Overview
 
 AIconomy is a modern, AI-powered personal finance platform designed to help users manage their finances more effectively. The application provides a comprehensive suite of tools for expense tracking, budget management, financial insights, and bank account integration.
+#Screenshots
+![image](https://github.com/user-attachments/assets/d617ca77-8238-43af-bcf9-bba6e6312472)
+![image](https://github.com/user-attachments/assets/120bc733-335e-4123-928c-790f5fc11f77)
+![image](https://github.com/user-attachments/assets/06d7fd76-7eec-450f-aa46-169c582e2f35)
+
+
+
+
 
 ## Key Features
 
